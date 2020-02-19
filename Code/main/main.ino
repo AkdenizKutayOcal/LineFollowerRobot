@@ -6,18 +6,18 @@
 // Motor Surucu Pinleri
 ///////////////////////////
  
-#define AIN1 
-#define BIN1 
-#define AIN2 
-#define BIN2 
-#define PWMA 
-#define PWMB 
-#define STBY 
+#define AIN1 4
+#define BIN1 8
+#define AIN2 5
+#define BIN2 7
+#define PWMA 3 
+#define PWMB 9
+#define STBY 6
 #define LOWSPEED 70
 #define MIDSPEED 150
 #define MAXSPEED 255
-#define DELAY 
-#define BACKSPIN 
+#define DELAY 500
+
 
 const int offsetA = 1;
 const int offsetB = 1;
@@ -35,14 +35,14 @@ Motor motorL = Motor(BIN2, BIN1, PWMB, offsetB, STBY);  //sol motor
 ////////////////////////
 
 
-#define lineL_1_pin    
-#define lineL_2_pin
+#define lineL_1_pin A5
+#define lineL_2_pin A4
 
-#define lineM_1_pin    
-#define lineM_2_pin 
+#define lineM_1_pin A3
+#define lineM_2_pin A2
  
-#define lineR_1_pin    
-#define lineR_2_pin      
+#define lineR_1_pin A1 
+#define lineR_2_pin A0    
 
 int lineL_1;  
 int lineL_2;  
@@ -57,7 +57,7 @@ int lineR_2;
 // Cisim Sensoru
 ////////////////////////
 
-#define cisim_pin
+#define cisim_pin 2
 
 int cisim;
 
@@ -79,33 +79,35 @@ void setup(){
 
 void loop(){
 
-  
+  delay(1000);
   int k = 0;
   int sensorValues[6];
 
   readSensors(sensorValues);
   k = findK(sensorValues);
+ // Serial.print("k :");
+ // Serial.println(k);
 
   if(k <= 0.5 || k >= -0.5){
-
+    Serial.println("ileri");
     forward(motorR,motorL,MIDSPEED);
     
   }
 
   else if(k>0.5){
-
+    Serial.println("sol");
     left(motorR,motorL,LOWSPEED*k);
     
   }
 
   else if(k<-0.5){
-
+Serial.println("sag");
     right(motorR,motorL,LOWSPEED*k);
 
   }
   
   else{
-
+    Serial.println("dur");
       brake(motorR,motorL);
   }
  
@@ -113,7 +115,6 @@ void loop(){
 
 void readSensors(int sensorValues[]){
 
-  int sensorValues [6];
    
   /*
   lineL_1 = analogRead(lineL_1_pin);
@@ -138,10 +139,22 @@ void readSensors(int sensorValues[]){
   cisim = digitalRead(cisim_pin);
   
   Serial.print("Line Sensor Values: ");
-  Serial.print(lineL_1 + lineL_2 + lineM_1 + lineM_2 + lineR_1 + lineR_2);
+  Serial.print(sensorValues[0]);
+  Serial.print(' ');
+  Serial.print(sensorValues[1]);
+  Serial.print(' ');
+  Serial.print(sensorValues[2]);
+  Serial.print(' ');
+  Serial.print(sensorValues[3]);
+  Serial.print(' ');
+  Serial.print(sensorValues[4]);
+  Serial.print(' ');
+  Serial.print(sensorValues[5]);
+  Serial.print(' ');
+/*  
   Serial.print("\nCisim Sensoru");
   Serial.print(cisim);
-
+*/
 }
 
 double findK(int sensorValues[]){
@@ -169,7 +182,7 @@ double findK(int sensorValues[]){
      }
     
     }
-
+    Serial.println(currentWhite);
     return currentWhite-3.5;
   }
 
