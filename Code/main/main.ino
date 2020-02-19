@@ -88,13 +88,13 @@ void loop(){
  // Serial.print("k :");
  // Serial.println(k);
 
-  if(k <= 0.5 || k >= -0.5){
+  if(k == 0.5 || k == -0.5 || k==0){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
     forward(motorR,motorL,MIDSPEED);
     
   }
 
-  else if(k>0.5){
+  else if(k>0.5){     
     Serial.println("sol");
     left(motorR,motorL,LOWSPEED*k);
     
@@ -171,6 +171,10 @@ double findK(int sensorValues[]){
     
   }
 
+  if(numberOfWhites==0){
+    return 0.1;
+    
+  }
   if(numberOfWhites<3){
 
     for(int i=1; i<7; i++){
