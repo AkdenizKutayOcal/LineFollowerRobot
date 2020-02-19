@@ -107,16 +107,6 @@ void left(Motor left, Motor right, int speed)
 }
 
 
-void fwd_left(Motor left, Motor right, int speed){
-
-  
-}
-
-void fwd_right(Motor left, Motor right, int speed){
-
-  
-}
-
 void right(Motor left, Motor right, int speed)
 {
 	int temp = abs(speed)/2;

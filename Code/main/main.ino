@@ -1,5 +1,6 @@
 #include <SparkFun_TB6612.h> //Motor Surucu Kutuphanesi
 
+#define SENSOR_LIMIT 500 //500 alti beyaz ustu siyah
 
 //////////////////////////// 
 // Motor Surucu Pinleri
@@ -12,9 +13,9 @@
 #define PWMA 
 #define PWMB 
 #define STBY 
-#define LOWSPEED 
-#define MIDSPEED 
-#define MAXSPEED 
+#define LOWSPEED 70
+#define MIDSPEED 150
+#define MAXSPEED 255
 #define DELAY 
 #define BACKSPIN 
 
@@ -78,12 +79,43 @@ void setup(){
 
 void loop(){
 
+  
+  int k = 0;
+  int sensorValues[6];
 
+  readSensors(sensorValues);
+  k = findK(sensorValues);
+
+  if(k <= 0.5||k >= -0.5){
+
+    forward(motorR,motorL,MIDSPEED);
+    
+  }
+
+  else if(k>0.5){
+
+    left(motorR,motorL,LOWSPEED*k);
+    
+  }
+
+  else if(k<-0.5){
+
+    right(motorR,motorL,LOWSPEED*k);
+
+  }
+
+  else{
+
+      brake(motorR,motorL);
+  }
  
 }
 
-void readSensors(){
-  
+void readSensors(int sensorValues[]){
+
+  int sensorValues [6];
+   
+  /*
   lineL_1 = analogRead(lineL_1_pin);
   lineL_2 = analogRead(lineL_2_pin);
 
@@ -92,6 +124,16 @@ void readSensors(){
   
   lineR_1 = analogRead(lineR_1_pin);
   lineR_2 = analogRead(lineR_2_pin);
+  */
+
+  sensorValues[0] = analogRead(lineL_1_pin);
+  sensorValues[1] = analogRead(lineL_2_pin);
+
+  sensorValues[2] = analogRead(lineM_1_pin);
+  sensorValues[3] = analogRead(lineM_2_pin);
+  
+  sensorValues[4] = analogRead(lineR_1_pin);
+  sensorValues[5] = analogRead(lineR_2_pin);
 
   cisim = digitalRead(cisim_pin);
   
@@ -100,6 +142,22 @@ void readSensors(){
   Serial.print("\nCisim Sensoru");
   Serial.print(cisim);
 
+}
+
+double findK(int sensorValues[]){
+
+  int currentWhite = 0;
   
-  
+  for(int i=1; i<7; i++){
+
+     if(sensorValues[i-1]<SENSOR_LIMIT){
+
+        currentWhite = i;
+        break;
+     }
+      
+  }
+
+  return currentWhite-3.5;
+
 }
