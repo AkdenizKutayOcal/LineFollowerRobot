@@ -7,9 +7,9 @@
 ///////////////////////////
  
 #define AIN1 4
-#define BIN1 8
+#define BIN1 7
 #define AIN2 5
-#define BIN2 7
+#define BIN2 8
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
@@ -61,6 +61,7 @@ int lineR_2;
 
 int cisim;
 
+
 void setup(){
 
   pinMode(lineL_1_pin, INPUT);        
@@ -79,14 +80,14 @@ void setup(){
 
 void loop(){
 
-  delay(1000);
-  int k = 0;
+  
+  
   int sensorValues[6];
-
+  double k = 0;
   readSensors(sensorValues);
   k = findK(sensorValues);
- // Serial.print("k :");
- // Serial.println(k);
+  Serial.print("k :");
+  Serial.println(k);
 
   if(k == 0.5 || k == -0.5 || k==0){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
@@ -96,13 +97,15 @@ void loop(){
 
   else if(k>0.5){     
     Serial.println("sol");
-    left(motorR,motorL,LOWSPEED*k);
+    int Speed = abs(LOWSPEED*k);
+    left(motorR,motorL,Speed);
     
   }
 
   else if(k<-0.5){
-Serial.println("sag");
-    right(motorR,motorL,LOWSPEED*k);
+    Serial.println("sag");
+    int Speed = abs(LOWSPEED*k);
+    right(motorR,motorL,Speed);
 
   }
   
@@ -170,23 +173,24 @@ double findK(int sensorValues[]){
      }
     
   }
-
+  Serial.println(numberOfWhites);
+  
   if(numberOfWhites==0){
     return 0.1;
     
   }
-  if(numberOfWhites<3){
+  else if(numberOfWhites<3&&numberOfWhites>0){
 
     for(int i=1; i<7; i++){
 
      if(sensorValues[i-1]<SENSOR_LIMIT){
 
         currentWhite = i;
-        break;
+        
      }
     
     }
-    Serial.println(currentWhite);
+    
     return currentWhite-3.5;
   }
 
@@ -196,3 +200,7 @@ double findK(int sensorValues[]){
   
 
 }
+
+
+//Stage 2 ye girerken keskin sola dönüşte mal oluyor
+//Stage3 ten 4 e giris sırasında serit değiştirme methodu lazım
