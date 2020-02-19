@@ -86,7 +86,7 @@ void loop(){
   readSensors(sensorValues);
   k = findK(sensorValues);
 
-  if(k <= 0.5||k >= -0.5){
+  if(k <= 0.5 || k >= -0.5){
 
     forward(motorR,motorL,MIDSPEED);
     
@@ -103,7 +103,7 @@ void loop(){
     right(motorR,motorL,LOWSPEED*k);
 
   }
-
+  
   else{
 
       brake(motorR,motorL);
@@ -147,17 +147,35 @@ void readSensors(int sensorValues[]){
 double findK(int sensorValues[]){
 
   int currentWhite = 0;
-  
+  int numberOfWhites = 0;
+
   for(int i=1; i<7; i++){
+
+    if(sensorValues[i-1]<SENSOR_LIMIT){
+
+        numberOfWhites++;
+     }
+    
+  }
+
+  if(numberOfWhites<3){
+
+    for(int i=1; i<7; i++){
 
      if(sensorValues[i-1]<SENSOR_LIMIT){
 
         currentWhite = i;
         break;
      }
-      
+    
+    }
+
+    return currentWhite-3.5;
   }
 
-  return currentWhite-3.5;
+  else{
+    return 0;
+  }
+  
 
 }
