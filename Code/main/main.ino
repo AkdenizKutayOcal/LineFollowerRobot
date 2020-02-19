@@ -56,8 +56,9 @@ int lineR_2;
 // Cisim Sensoru
 ////////////////////////
 
+#define cisim_pin
 
-
+int cisim;
 
 void setup(){
 
@@ -67,6 +68,8 @@ void setup(){
   pinMode(lineM_2_pin, INPUT);
   pinMode(lineR_1_pin, INPUT);        
   pinMode(lineR_2_pin, INPUT);
+
+  pinMode(cisim_pin, INPUT);
   
   Serial.begin(9600);
 
@@ -90,7 +93,13 @@ void readSensors(){
   lineR_1 = analogRead(lineR_1_pin);
   lineR_2 = analogRead(lineR_2_pin);
 
-  Serial.print("Sensor Values: ");
+  cisim = digitalRead(cisim_pin);
+  
+  Serial.print("Line Sensor Values: ");
   Serial.print(lineL_1 + lineL_2 + lineM_1 + lineM_2 + lineR_1 + lineR_2);
+  Serial.print("\nCisim Sensoru");
+  Serial.print(cisim);
+
+  
   
 }
