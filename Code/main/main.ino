@@ -1,6 +1,6 @@
 #include <SparkFun_TB6612.h> //Motor Surucu Kutuphanesi
 
-#define SENSOR_LIMIT 500 //500 alti beyaz ustu siyah
+int SENSOR_LIMIT = 0; 
 
 //////////////////////////// 
 // Motor Surucu Pinleri
@@ -35,16 +35,16 @@ Motor motorL = Motor(BIN2, BIN1, PWMB, offsetB, STBY);  //sol motor
 ////////////////////////
 
 
-#define lineL_1_pin A5
-#define lineL_2_pin A4
-#define lineL_3_pin A4
+#define lineL_1_pin A7
+#define lineL_2_pin A0
+#define lineL_3_pin A1
 
-#define lineM_1_pin A3
-#define lineM_2_pin A2
- 
-#define lineR_1_pin A1 
-#define lineR_2_pin A0  
-#define lineR_3_pin A0  
+#define lineM_1_pin A2
+#define lineM_2_pin A3
+
+#define lineR_1_pin A4 
+#define lineR_2_pin A5  
+#define lineR_3_pin A6  
 
 int lineL_1;  
 int lineL_2;  
@@ -65,6 +65,19 @@ int lineR_3;
 
 int cisim;
 
+/////////////////////////
+// Button
+////////////////////////
+
+boolean button= false;
+int butonDurumu=0;
+int b=0;
+int state=0;
+boolean calibrasyon = false;
+#define button_pin 12
+ int minimum = 1000;
+    int maximum = 0;
+
 
 void setup(){
 
@@ -78,6 +91,8 @@ void setup(){
   pinMode(lineR_3_pin, INPUT);
 
   pinMode(cisim_pin, INPUT);
+
+  pinMode(button_pin, INPUT);
   
   Serial.begin(9600);
 
@@ -86,9 +101,43 @@ void setup(){
 
 void loop(){
 
+  butonDurumu= digitalRead(button_pin);
+ 
   
-  
-  int sensorValues[8];
+    if(butonDurumu==HIGH)
+    {
+      for(b;b<1;b++)
+      {
+      if(button==false)
+      {
+        button= true;
+        state++;
+      }
+      else
+      {
+        button= false;
+      }
+    }
+  }
+
+  if(button==true && state==1)
+  {
+    Serial.println("Kalibrasyon");
+   
+
+    calibration();
+    Serial.println(SENSOR_LIMIT);
+    
+    if(butonDurumu==LOW)
+    {
+      b=0;
+    }
+  }
+
+  else if(button==true&& state>=2)
+  {
+    Serial.println("kod");
+    int sensorValues[8];
   double k = 0;
   
   readSensors(sensorValues);
@@ -118,6 +167,22 @@ void loop(){
     
     Serial.println("dur");
     brake(motorR,motorL);
+  }
+    
+    if(butonDurumu==LOW)
+    {
+      b=0;
+    }
+  }
+  
+   else
+  {
+    Serial.println("button stop");
+    
+    if(butonDurumu==LOW)
+    {
+      b=0;
+    }
   }
  
 }
@@ -170,7 +235,7 @@ double findK(int sensorValues[]){
 
   for(int i=1; i<9; i++){
 
-    if(sensorValues[i-1]<SENSOR_LIMIT){
+    if(sensorValues[i-1]>SENSOR_LIMIT){
 
         numberOfWhites++;
         totalOfWhites += i;
@@ -203,7 +268,7 @@ double findK(int sensorValues[]){
     
     for(int i=indexOfLastWhite; i>0 ; i--){
 
-      if(sensorValues[i-1]>SENSOR_LIMIT){
+      if(sensorValues[i-1]<SENSOR_LIMIT){
         consecative = false;
         break;  
       }
@@ -216,13 +281,13 @@ double findK(int sensorValues[]){
 
     else{
 
-      if(sensorValues[0]<SENSOR_LIMIT && sensorValues[7]>SENSOR_LIMIT){
+      if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){
 
         k = -3.5;
         
       }
   
-      else if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){
+      else if(sensorValues[0]<SENSOR_LIMIT && sensorValues[7]>SENSOR_LIMIT){
 
          k = 3.5;     
       }
@@ -244,12 +309,10 @@ double findK(int sensorValues[]){
 
 }
 
-int calibration(){
+void calibration(){
 
   int tempSensorValues[8];
-  int minimum = 1000;
-  int maximum = 0;
-  
+
   readSensors(tempSensorValues);
   
   for(int i=0; i<8; i++){
@@ -263,8 +326,7 @@ int calibration(){
     }
   }
 
-
-  
+  SENSOR_LIMIT = (minimum+maximum)/2;
 }
 
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
