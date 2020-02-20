@@ -1,4 +1,3 @@
-#include <SparkFun_TB6612.h> //Motor Surucu Kutuphanesi
 
 int SENSOR_LIMIT = 0; 
 
@@ -21,14 +20,6 @@ int SENSOR_LIMIT = 0;
 
 const int offsetA = 1;
 const int offsetB = 1;
-
-///////////////////////////
-// Sag ve Sol Motorlar 
-//////////////////////////
-
-Motor motorR = Motor(AIN1, AIN2, PWMA, offsetA, STBY); //sag motor
-Motor motorL = Motor(BIN2, BIN1, PWMB, offsetB, STBY);  //sol motor
-
 
 /////////////////////////
 // Cizgi Sensorleri
@@ -80,6 +71,14 @@ boolean calibrasyon = false;
 
 
 void setup(){
+
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  pinMode(BIN1, OUTPUT);
+  pinMode(BIN2, OUTPUT);
+  pinMode(PWMA, OUTPUT);
+  pinMode(PWMB, OUTPUT);
+  pinMode(STBY, OUTPUT);
 
   pinMode(lineL_1_pin, INPUT);        
   pinMode(lineL_2_pin, INPUT);
@@ -145,28 +144,28 @@ void loop(){
   
   if(k == 1 || k == -1 || k==0 || k==0.5 || k==-0.5 ){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
-    forward(motorR,motorL,MIDSPEED);
+    forward(MIDSPEED);
     
   }
 
   else if(k>1){     
     Serial.println("sag");
     int Speed = abs(LOWSPEED*k);
-    left(motorR,motorL,Speed);
+    left(Speed);
     
   }
 
   else if(k<-1){
     Serial.println("sol");
     int Speed = abs(LOWSPEED*k);
-    right(motorR,motorL,Speed);
+    right(Speed);
 
   }
   
   else{//hepsi siyah
     
     Serial.println("dur");
-    brake(motorR,motorL);
+    brake();
   }
     
     if(butonDurumu==LOW)
@@ -178,7 +177,7 @@ void loop(){
    else
   {
     Serial.println("button stop");
-    brake(motorR,motorL);
+    brake();
     
     if(butonDurumu==LOW)
     {
@@ -330,5 +329,127 @@ void calibration(){
   SENSOR_LIMIT = 3*(minimum+maximum)/5;
 }
 
+void forward(int speedValue){
+  
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, speedValue);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  analogWrite(PWMB, speedValue);
+  
+  }
+
+void brake(){
+
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,HIGH);
+  analogWrite(PWMA, 0);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,HIGH);
+  analogWrite(PWMB, 0);
+
+}
+
+void left(int speedValue){
+
+  int speedL = (speedValue*2)/3;
+  int speedR = speedValue;
+  
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, speedR);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  analogWrite(PWMB, speedL);
+  
+}
+
+
+void right(int speedValue){
+
+  int speedR = (speedValue*2)/3;
+  int speedL = speedValue;
+  
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, speedR);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  analogWrite(PWMB, speedL);
+  
+}
+
+void seritDegistirSol(){
+
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, 40);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  analogWrite(PWMB, 20);
+
+  while(!(analogRead(lineM_1_pin)>SENSOR_LIMIT || analogRead(lineM_2_pin)>SENSOR_LIMIT)){
+
+    digitalWrite(AIN1,HIGH);
+    digitalWrite(AIN2,LOW);
+    analogWrite(PWMA, 40);
+  
+    digitalWrite(BIN1,HIGH);
+    digitalWrite(BIN2,LOW);
+    analogWrite(PWMB, 40);
+    
+  }
+
+  delay(250);
+  
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, 20);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,HIGH);
+  analogWrite(PWMB, 40);
+  
+}
+
+void seritDegistirSag(){
+
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, 20);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,LOW);
+  analogWrite(PWMB, 40);
+
+  while(!(analogRead(lineM_1_pin)>SENSOR_LIMIT || analogRead(lineM_2_pin)>SENSOR_LIMIT)){
+
+    digitalWrite(AIN1,HIGH);
+    digitalWrite(AIN2,LOW);
+    analogWrite(PWMA, 40);
+  
+    digitalWrite(BIN1,HIGH);
+    digitalWrite(BIN2,LOW);
+    analogWrite(PWMB, 40);
+    
+  }
+
+  delay(250);
+  
+  digitalWrite(AIN1,HIGH);
+  digitalWrite(AIN2,LOW);
+  analogWrite(PWMA, 40);
+  
+  digitalWrite(BIN1,HIGH);
+  digitalWrite(BIN2,HIGH);
+  analogWrite(PWMB, 20);
+  
+}
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
 //Stage3 ten 4 e giris sırasında serit değiştirme methodu lazım
