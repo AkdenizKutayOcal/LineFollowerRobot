@@ -37,21 +37,25 @@ Motor motorL = Motor(BIN2, BIN1, PWMB, offsetB, STBY);  //sol motor
 
 #define lineL_1_pin A5
 #define lineL_2_pin A4
+#define lineL_3_pin A4
 
 #define lineM_1_pin A3
 #define lineM_2_pin A2
  
 #define lineR_1_pin A1 
-#define lineR_2_pin A0    
+#define lineR_2_pin A0  
+#define lineR_3_pin A0  
 
 int lineL_1;  
 int lineL_2;  
+int lineL_3; 
 
 int lineM_1;  
 int lineM_2; 
 
 int lineR_1;  
 int lineR_2; 
+int lineR_3;
 
 /////////////////////////
 // Cisim Sensoru
@@ -66,10 +70,12 @@ void setup(){
 
   pinMode(lineL_1_pin, INPUT);        
   pinMode(lineL_2_pin, INPUT);
+  pinMode(lineL_3_pin, INPUT);
   pinMode(lineM_1_pin, INPUT);        
   pinMode(lineM_2_pin, INPUT);
   pinMode(lineR_1_pin, INPUT);        
   pinMode(lineR_2_pin, INPUT);
+  pinMode(lineR_3_pin, INPUT);
 
   pinMode(cisim_pin, INPUT);
   
@@ -82,64 +88,55 @@ void loop(){
 
   
   
-  int sensorValues[6];
+  int sensorValues[8];
   double k = 0;
+  
   readSensors(sensorValues);
   k = findK(sensorValues);
-  Serial.print("k :");
-  Serial.println(k);
-
-  if(k == 0.5 || k == -0.5 || k==0){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
+  
+  if(k == 1 || k == -1 || k==0){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
     forward(motorR,motorL,MIDSPEED);
     
   }
 
-  else if(k>0.5){     
-    Serial.println("sol");
-    int Speed = abs(LOWSPEED*k);
-    left(motorR,motorL,Speed);
-    
-  }
-
-  else if(k<-0.5){
+  else if(k>1){     
     Serial.println("sag");
     int Speed = abs(LOWSPEED*k);
     right(motorR,motorL,Speed);
+    
+  }
+
+  else if(k<-1){
+    Serial.println("sol");
+    int Speed = abs(LOWSPEED*k);
+    left(motorR,motorL,Speed);
 
   }
   
-  else{
+  else{//hepsi siyah
+    
     Serial.println("dur");
-      brake(motorR,motorL);
+    brake(motorR,motorL);
   }
  
 }
 
 void readSensors(int sensorValues[]){
 
-   
-  /*
-  lineL_1 = analogRead(lineL_1_pin);
-  lineL_2 = analogRead(lineL_2_pin);
-
-  lineM_1 = analogRead(lineM_1_pin);
-  lineM_2 = analogRead(lineM_2_pin);
-  
-  lineR_1 = analogRead(lineR_1_pin);
-  lineR_2 = analogRead(lineR_2_pin);
-  */
-
   sensorValues[0] = analogRead(lineL_1_pin);
   sensorValues[1] = analogRead(lineL_2_pin);
+  sensorValues[2] = analogRead(lineL_3_pin);
 
-  sensorValues[2] = analogRead(lineM_1_pin);
-  sensorValues[3] = analogRead(lineM_2_pin);
+  sensorValues[3] = analogRead(lineM_1_pin);
+  sensorValues[4] = analogRead(lineM_2_pin);
   
-  sensorValues[4] = analogRead(lineR_1_pin);
-  sensorValues[5] = analogRead(lineR_2_pin);
+  sensorValues[5] = analogRead(lineR_1_pin);
+  sensorValues[6] = analogRead(lineR_2_pin);
+  sensorValues[7] = analogRead(lineR_2_pin);
 
   cisim = digitalRead(cisim_pin);
+
   
   Serial.print("Line Sensor Values: ");
   Serial.print(sensorValues[0]);
@@ -154,6 +151,10 @@ void readSensors(int sensorValues[]){
   Serial.print(' ');
   Serial.print(sensorValues[5]);
   Serial.print(' ');
+  Serial.print(sensorValues[6]);
+  Serial.print(' ');
+  Serial.print(sensorValues[7]);
+  
 /*  
   Serial.print("\nCisim Sensoru");
   Serial.print(cisim);
@@ -162,42 +163,84 @@ void readSensors(int sensorValues[]){
 
 double findK(int sensorValues[]){
 
-  int currentWhite = 0;
+  double k = 0.0;
   int numberOfWhites = 0;
+  int totalOfWhites = 0;
+  int indexOfLastWhite = 0;
 
-  for(int i=1; i<7; i++){
+  for(int i=1; i<9; i++){
 
     if(sensorValues[i-1]<SENSOR_LIMIT){
 
         numberOfWhites++;
+        totalOfWhites += i;
+        indexOfLastWhite = i;
      }
     
   }
-  Serial.println(numberOfWhites);
   
-  if(numberOfWhites==0){
-    return 0.1;
+  if(numberOfWhites==0){  
+    k = 0.1;
     
   }
-  else if(numberOfWhites<3&&numberOfWhites>0){
+  
+  else if(numberOfWhites >0 && numberOfWhites<3){  
 
-    for(int i=1; i<7; i++){
-
-     if(sensorValues[i-1]<SENSOR_LIMIT){
-
-        currentWhite = i;
-        
-     }
+    int centerOfWhites = totalOfWhites / numberOfWhites;
+    k = centerOfWhites - 4.5;  
     
+  }
+
+  else if(numberOfWhites >3 && numberOfWhites<8){
+    
+    boolean consecative = true;
+    
+    //eger aralik varsa en son beyaza gore islem yap
+
+    //eger aralik yoksa, sagda mi solda mi belirle
+    //onlarin da en uc degerlerine gore islem yap
+
+    
+    for(int i=indexOfLastWhite; i>0 ; i--){
+
+      if(sensorValues[i-1]>SENSOR_LIMIT){
+        consecative = false;
+        break;  
+      }
     }
-    
-    return currentWhite-3.5;
+
+    if(!consecative){
+
+      k = indexOfLastWhite-4.5;
+    }
+
+    else{
+
+      if(sensorValues[0]<SENSOR_LIMIT && sensorValues[7]>SENSOR_LIMIT){
+
+        k = -3.5;
+        
+      }
+  
+      else if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){
+
+         k = 3.5;     
+      }
+
+      else{
+
+        int centerOfWhites = totalOfWhites / numberOfWhites;
+        k = centerOfWhites - 4.5; 
+      }
+    }
   }
 
-  else{
-    return 0;
+  else{//hepsi beyaz
+
+    k=0;
   }
-  
+
+  return k;
 
 }
 
