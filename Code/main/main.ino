@@ -12,8 +12,8 @@ int SENSOR_LIMIT = 0;
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 10
-#define MIDSPEED 80
+#define LOWSPEED 100
+#define MIDSPEED 70
 #define MAXSPEED 255
 #define DELAY 500
 
@@ -199,7 +199,7 @@ void readSensors(int sensorValues[]){
   
   sensorValues[5] = analogRead(lineR_1_pin);
   sensorValues[6] = analogRead(lineR_2_pin);
-  sensorValues[7] = analogRead(lineR_2_pin);
+  sensorValues[7] = analogRead(lineR_3_pin);
 
   cisim = digitalRead(cisim_pin);
 
@@ -356,8 +356,9 @@ void brake(){
 
 void left(int speedValue,double k){
 
-  int speedL = speedValue;
-  int speedR = speedValue*k;
+  int speedL = speedValue/k;
+  int speedR = speedValue;
+  Serial.println(speedR);
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
@@ -372,8 +373,10 @@ void left(int speedValue,double k){
 
 void right(int speedValue, double k){
 
-  int speedR = speedValue;
-  int speedL = speedValue*k;
+  int speedR = speedValue/k;
+  int speedL = speedValue;
+
+  Serial.println(speedL);
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
