@@ -6,14 +6,14 @@ int SENSOR_LIMIT = 0;
 ///////////////////////////
  
 #define AIN1 4
-#define BIN1 7
+#define BIN1 8
 #define AIN2 5
-#define BIN2 8
+#define BIN2 7
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 55
-#define MIDSPEED 105
+#define LOWSPEED 10
+#define MIDSPEED 80
 #define MAXSPEED 255
 #define DELAY 500
 
@@ -100,6 +100,7 @@ void setup(){
 
 void loop(){
 
+  digitalWrite(STBY,HIGH);
   butonDurumu= digitalRead(button_pin);
  
   
@@ -150,15 +151,15 @@ void loop(){
 
   else if(k>1){     
     Serial.println("sag");
-    int Speed = abs(LOWSPEED*k);
-    left(Speed);
+    k = abs(k);
+    left(LOWSPEED,k);
     
   }
 
   else if(k<-1){
     Serial.println("sol");
-    int Speed = abs(LOWSPEED*k);
-    right(Speed);
+    k = abs(k);
+    right(LOWSPEED,k);
 
   }
   
@@ -353,34 +354,34 @@ void brake(){
 
 }
 
-void left(int speedValue){
+void left(int speedValue,double k){
 
-  int speedL = (speedValue*2)/3;
-  int speedR = speedValue;
+  int speedL = speedValue;
+  int speedR = speedValue*k;
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, speedR);
+  analogWrite(PWMA, speedL);
   
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
-  analogWrite(PWMB, speedL);
+  analogWrite(PWMB, speedR);
   
 }
 
 
-void right(int speedValue){
+void right(int speedValue, double k){
 
-  int speedR = (speedValue*2)/3;
-  int speedL = speedValue;
+  int speedR = speedValue;
+  int speedL = speedValue*k;
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, speedR);
+  analogWrite(PWMA, speedL);
   
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
-  analogWrite(PWMB, speedL);
+  analogWrite(PWMB, speedR);
   
 }
 
