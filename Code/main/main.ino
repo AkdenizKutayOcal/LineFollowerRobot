@@ -244,6 +244,28 @@ double findK(int sensorValues[]){
 
 }
 
+int calibration(){
+
+  int tempSensorValues[8];
+  int minimum = 1000;
+  int maximum = 0;
+  
+  readSensors(tempSensorValues);
+  
+  for(int i=0; i<8; i++){
+
+    if(tempSensorValues[i]<minimum){
+      minimum = tempSensorValues[i];
+    }
+
+    else if(tempSensorValues[i]>maximum){
+      maximum = tempSensorValues[i];
+    }
+  }
+
+
+  
+}
 
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
 //Stage3 ten 4 e giris sırasında serit değiştirme methodu lazım
