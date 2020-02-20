@@ -13,8 +13,8 @@ int SENSOR_LIMIT = 0;
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 70
-#define MIDSPEED 150
+#define LOWSPEED 55
+#define MIDSPEED 105
 #define MAXSPEED 255
 #define DELAY 500
 
@@ -36,14 +36,14 @@ Motor motorL = Motor(BIN2, BIN1, PWMB, offsetB, STBY);  //sol motor
 
 
 #define lineL_1_pin A7
-#define lineL_2_pin A0
-#define lineL_3_pin A1
+#define lineL_2_pin A5
+#define lineL_3_pin A4
 
-#define lineM_1_pin A2
-#define lineM_2_pin A3
+#define lineM_1_pin A3
+#define lineM_2_pin A2
 
-#define lineR_1_pin A4 
-#define lineR_2_pin A5  
+#define lineR_1_pin A1 
+#define lineR_2_pin A0  
 #define lineR_3_pin A6  
 
 int lineL_1;  
@@ -143,7 +143,7 @@ void loop(){
   readSensors(sensorValues);
   k = findK(sensorValues);
   
-  if(k == 1 || k == -1 || k==0){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
+  if(k == 1 || k == -1 || k==0 || k==0.5 || k==-0.5 ){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
     forward(motorR,motorL,MIDSPEED);
     
@@ -152,14 +152,14 @@ void loop(){
   else if(k>1){     
     Serial.println("sag");
     int Speed = abs(LOWSPEED*k);
-    right(motorR,motorL,Speed);
+    left(motorR,motorL,Speed);
     
   }
 
   else if(k<-1){
     Serial.println("sol");
     int Speed = abs(LOWSPEED*k);
-    left(motorR,motorL,Speed);
+    right(motorR,motorL,Speed);
 
   }
   
@@ -178,6 +178,7 @@ void loop(){
    else
   {
     Serial.println("button stop");
+    brake(motorR,motorL);
     
     if(butonDurumu==LOW)
     {
@@ -326,7 +327,7 @@ void calibration(){
     }
   }
 
-  SENSOR_LIMIT = (minimum+maximum)/2;
+  SENSOR_LIMIT = 3*(minimum+maximum)/5;
 }
 
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
