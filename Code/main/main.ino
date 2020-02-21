@@ -1,8 +1,9 @@
 
 int SENSOR_LIMIT = 600; 
 double c =0;
-int stage = 0;
-int countAllWhite = 1;
+int stage = 1;
+int countAllWhites = 1;
+int sensorValues[8];
 
 //////////////////////////// 
 // Motor Surucu Pinleri
@@ -15,8 +16,8 @@ int countAllWhite = 1;
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 70
-#define MIDSPEED 70
+#define LOWSPEED 60
+#define MIDSPEED 60
 #define MAXSPEED 205
 #define DELAY 500
 
@@ -140,22 +141,22 @@ void loop(){
   else if(button==true&& state>=2)
   {
     Serial.println("kod");
-
+    readSensors(sensorValues);
     
-    if(cisim==1 && stage==3){
+    if(cisim==0 && stage==3){
 
       while(stage==3){
 
-        if(digitalRead(cisim_pin)==1 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
+        if(digitalRead(cisim_pin)==0 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
           
           brake();
         }
-        else if(digitalRead(cisim_pin)==0 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
+        else if(digitalRead(cisim_pin)==1 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
           forward(MIDSPEED);
           delay(50);
           brake();
         }
-        else if(digitalRead(cisim_pin)==1 && ((analogRead(lineM_1_pin)<SENSOR_LIMIT)||(analogRead(lineM_2_pin)<SENSOR_LIMIT))){
+        else if(digitalRead(cisim_pin)==0 && ((analogRead(lineM_1_pin)<SENSOR_LIMIT)||(analogRead(lineM_2_pin)<SENSOR_LIMIT))){
           brake();
         }
         else{
@@ -172,9 +173,9 @@ void loop(){
       
     }
 
-    else if(cisim==1&& stage==2){
+    else if(cisim==0&& stage==2){
        
-      while(digitalRead(cisim_pin)==1){
+      while(digitalRead(cisim_pin)==0){
         brake();
       }
 
@@ -182,9 +183,11 @@ void loop(){
       
     }
     
-    else if(cisim==1 && stage==1){
+    else if(cisim==0 && stage==1){
+      Serial.println("Serit değiştir");
 
       seritDegistirSol();
+      
       stage++;
       
     }
@@ -216,7 +219,7 @@ void loop(){
 
 void lineFollow(){
 
-  int sensorValues[8];
+  
   double k = 0;
   
   readSensors(sensorValues);
@@ -298,7 +301,7 @@ void readSensors(int sensorValues[]){
 
   cisim = digitalRead(cisim_pin);
 
-  /*
+  
   Serial.print("Line Sensor Values: ");
   Serial.print(sensorValues[0]);
   Serial.print(' ');
@@ -319,7 +322,7 @@ void readSensors(int sensorValues[]){
  
   Serial.print("Cisim Sensoru ");
   Serial.println(cisim);
-*/
+
 }
 
 double findK(int sensorValues[]){
@@ -487,33 +490,28 @@ void seritDegistirSol(){
 
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, 40);
+  analogWrite(PWMA, 100);
   
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
-  analogWrite(PWMB, 20);
+  analogWrite(PWMB, 50);
 
-  while(!(analogRead(lineM_1_pin)>SENSOR_LIMIT || analogRead(lineM_2_pin)>SENSOR_LIMIT)){
+  delay(500);
 
+  while(!(analogRead(lineR_2_pin)>SENSOR_LIMIT )){
+    Serial.println("go forward");
     digitalWrite(AIN1,HIGH);
     digitalWrite(AIN2,LOW);
-    analogWrite(PWMA, 40);
+    analogWrite(PWMA, 50);
   
     digitalWrite(BIN1,HIGH);
     digitalWrite(BIN2,LOW);
-    analogWrite(PWMB, 40);
+    analogWrite(PWMB, 50);
     
   }
 
-  delay(250);
   
-  digitalWrite(AIN1,HIGH);
-  digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, 20);
-  
-  digitalWrite(BIN1,HIGH);
-  digitalWrite(BIN2,HIGH);
-  analogWrite(PWMB, 40);
+
   
 }
 
@@ -521,34 +519,26 @@ void seritDegistirSag(){
 
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, 20);
+  analogWrite(PWMA, 0);
   
   digitalWrite(BIN1,HIGH);
   digitalWrite(BIN2,LOW);
   analogWrite(PWMB, 40);
 
+  delay(500);
+
   while(!(analogRead(lineM_1_pin)>SENSOR_LIMIT || analogRead(lineM_2_pin)>SENSOR_LIMIT)){
 
     digitalWrite(AIN1,HIGH);
     digitalWrite(AIN2,LOW);
-    analogWrite(PWMA, 40);
+    analogWrite(PWMA, 50);
   
     digitalWrite(BIN1,HIGH);
     digitalWrite(BIN2,LOW);
-    analogWrite(PWMB, 40);
+    analogWrite(PWMB, 50);
     
   }
 
-  delay(250);
-  
-  digitalWrite(AIN1,HIGH);
-  digitalWrite(AIN2,LOW);
-  analogWrite(PWMA, 40);
-  
-  digitalWrite(BIN1,HIGH);
-  digitalWrite(BIN2,HIGH);
-  analogWrite(PWMB, 20);
-  
 }
 
 void r90(){
