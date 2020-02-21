@@ -1,6 +1,8 @@
 
 int SENSOR_LIMIT = 600; 
 double c =0;
+int stage = 1;
+
 //////////////////////////// 
 // Motor Surucu Pinleri
 ///////////////////////////
@@ -99,11 +101,6 @@ void setup(){
 
 
 void loop(){
-
-  
- 
-  
-  
   
   digitalWrite(STBY,HIGH);
   butonDurumu= digitalRead(button_pin);
@@ -142,11 +139,36 @@ void loop(){
   else if(button==true&& state>=2)
   {
     Serial.println("kod");
-    int sensorValues[8];
+
+    lineFollow();
+        
+    if(butonDurumu==LOW)
+    {
+      b=0;
+    }
+  }
+  
+   else
+  {
+    Serial.println("button stop");
+    brake();
+    
+    if(butonDurumu==LOW)
+    {
+      b=0;
+    }
+  }
+ 
+}
+
+void lineFollow(){
+
+  int sensorValues[8];
   double k = 0;
   
   readSensors(sensorValues);
   k = findK(sensorValues);
+
   
   if(k == 1 || k == -1 || k==0 || k==0.5 || k==-0.5 ){  //orta sensorler beyazsa veya hepsi beyazsa ileri git
     Serial.println("ileri");
@@ -175,7 +197,7 @@ void loop(){
       k += 0.3;
     }
   }
-   else if(k==0.2){
+  /* else if(k==0.2){
      Serial.println("saga keskin");
      l90();
    }
@@ -185,32 +207,18 @@ void loop(){
      r90();
    }
 
-  
+  */
   
   else{//hepsi siyah
     
     Serial.println("dur");
     brake();
   }
-    
-    if(butonDurumu==LOW)
-    {
-      b=0;
-    }
-  }
+
+
   
-   else
-  {
-    Serial.println("button stop");
-    brake();
-    
-    if(butonDurumu==LOW)
-    {
-      b=0;
-    }
-  }
- 
 }
+
 
 void readSensors(int sensorValues[]){
 
@@ -243,12 +251,12 @@ void readSensors(int sensorValues[]){
   Serial.print(' ');
   Serial.print(sensorValues[6]);
   Serial.print(' ');
-  Serial.print(sensorValues[7]);
+  Serial.println(sensorValues[7]);
   
-/*  
-  Serial.print("\nCisim Sensoru");
-  Serial.print(cisim);
-*/
+ 
+  Serial.print("Cisim Sensoru ");
+  Serial.println(cisim);
+
 }
 
 double findK(int sensorValues[]){
@@ -308,13 +316,15 @@ double findK(int sensorValues[]){
 
       if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){  //instead of sending -3.5 or 3.5 send special 90 degree turn values 
 
-        k = -0.2;
+        //k = -0.2;
+        k = -4.5;
         
       }
   
       else if(sensorValues[0]<SENSOR_LIMIT && sensorValues[7]>SENSOR_LIMIT){
 
-         k = 0.2;     
+         //k = 0.2;  
+         k = 4.5;   
       }
 
       else{
