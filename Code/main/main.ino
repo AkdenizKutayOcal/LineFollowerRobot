@@ -174,7 +174,16 @@ void loop(){
       right(LOWSPEED,k);
       k += 0.3;
     }
-   
+
+   else if(k==0.2){
+     Serial.println("saga keskin");
+     r90();
+   }
+
+   else if(k==-0.2){
+     Serial.println("sola keskin");
+     l90();
+   }
 
   }
   
@@ -299,13 +308,13 @@ double findK(int sensorValues[]){
 
       if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){  //instead of sending -3.5 or 3.5 send special 90 degree turn values 
 
-        k = -3.5;
+        k = -0.2;
         
       }
   
       else if(sensorValues[0]<SENSOR_LIMIT && sensorValues[7]>SENSOR_LIMIT){
 
-         k = 3.5;     
+         k = 0.2;     
       }
 
       else{
@@ -466,6 +475,38 @@ void seritDegistirSag(){
   digitalWrite(BIN2,HIGH);
   analogWrite(PWMB, 20);
   
+}
+
+void r90(){
+
+  do{
+
+    digitalWrite(AIN1,HIGH);
+    digitalWrite(AIN2,LOW);
+    analogWrite(PWMA, MAXSPEED);
+  
+    digitalWrite(BIN1,HIGH);
+    digitalWrite(BIN2,LOW);
+    analogWrite(PWMB, -MAXSPEED);
+    
+  }while((analogRead(lineR_3_pin)<SENSOR_LIMIT) && (analogRead(lineR_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)))
+
+}
+
+void l90(){
+
+  do{
+
+    digitalWrite(AIN1,HIGH);
+    digitalWrite(AIN2,LOW);
+    analogWrite(PWMA, -MAXSPEED);
+  
+    digitalWrite(BIN1,HIGH);
+    digitalWrite(BIN2,LOW);
+    analogWrite(PWMB, MAXSPEED);
+    
+  }while((analogRead(lineL_3_pin)<SENSOR_LIMIT) && (analogRead(lineL_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)))
+
 }
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
 //Stage3 ten 4 e giris sırasında serit değiştirme methodu lazım
