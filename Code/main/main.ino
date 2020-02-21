@@ -1,7 +1,8 @@
 
 int SENSOR_LIMIT = 600; 
 double c =0;
-int stage = 1;
+int stage = 0;
+int countAllWhite = 1;
 
 //////////////////////////// 
 // Motor Surucu Pinleri
@@ -140,7 +141,59 @@ void loop(){
   {
     Serial.println("kod");
 
-    lineFollow();
+    
+    if(cisim==1 && stage==3){
+
+      while(stage==3){
+
+        if(digitalRead(cisim_pin)==1 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
+          
+          brake();
+        }
+        else if(digitalRead(cisim_pin)==0 && ((analogRead(lineM_1_pin)>SENSOR_LIMIT)||(analogRead(lineM_2_pin)>SENSOR_LIMIT))){
+          forward(MIDSPEED);
+          delay(50);
+          brake();
+        }
+        else if(digitalRead(cisim_pin)==1 && ((analogRead(lineM_1_pin)<SENSOR_LIMIT)||(analogRead(lineM_2_pin)<SENSOR_LIMIT))){
+          brake();
+        }
+        else{
+          seritDegistirSol();
+          while(countAllWhites !=5){
+            lineFollow();
+          }
+
+          seritDegistirSag();
+          stage++;
+        }
+        
+      }
+      
+    }
+
+    else if(cisim==1&& stage==2){
+       
+      while(digitalRead(cisim_pin)==1){
+        brake();
+      }
+
+      stage++;
+      
+    }
+    
+    else if(cisim==1 && stage==1){
+
+      seritDegistirSol();
+      stage++;
+      
+    }
+
+    else{
+
+      lineFollow();
+    }
+    
         
     if(butonDurumu==LOW)
     {
@@ -214,6 +267,12 @@ void lineFollow(){
   */
   
   else{//hepsi siyah
+
+    if(countAllWhites>=5){
+      forward(20);
+      delay(100);
+      brake();  
+    }
     
     Serial.println("dur");
     brake();
@@ -342,6 +401,7 @@ double findK(int sensorValues[]){
   else{//hepsi beyaz
 
     k=0;
+    countAllWhites++;
   }
 
   return k;
