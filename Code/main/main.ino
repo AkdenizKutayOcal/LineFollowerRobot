@@ -1,5 +1,5 @@
 
-int SENSOR_LIMIT = 0; 
+int SENSOR_LIMIT = 600; 
 double c =0;
 //////////////////////////// 
 // Motor Surucu Pinleri
@@ -14,7 +14,7 @@ double c =0;
 #define STBY 6
 #define LOWSPEED 60
 #define MIDSPEED 60
-#define MAXSPEED 255
+#define MAXSPEED 205
 #define DELAY 500
 
 
@@ -174,18 +174,18 @@ void loop(){
       right(LOWSPEED,k);
       k += 0.3;
     }
-
+  }
    else if(k==0.2){
      Serial.println("saga keskin");
-     r90();
+     l90();
    }
 
    else if(k==-0.2){
      Serial.println("sola keskin");
-     l90();
+     r90();
    }
 
-  }
+  
   
   else{//hepsi siyah
     
@@ -489,7 +489,7 @@ void r90(){
     digitalWrite(BIN2,LOW);
     analogWrite(PWMB, -MAXSPEED);
     
-  }while((analogRead(lineR_3_pin)<SENSOR_LIMIT) && (analogRead(lineR_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)))
+  }while(!(analogRead(lineR_3_pin)<SENSOR_LIMIT) && (analogRead(lineR_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)));
 
 }
 
@@ -504,8 +504,8 @@ void l90(){
     digitalWrite(BIN1,HIGH);
     digitalWrite(BIN2,LOW);
     analogWrite(PWMB, MAXSPEED);
-    
-  }while((analogRead(lineL_3_pin)<SENSOR_LIMIT) && (analogRead(lineL_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)))
+
+  }while(!(analogRead(lineL_1_pin)<SENSOR_LIMIT) && (analogRead(lineL_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)));
 
 }
 //Stage 2 ye girerken keskin sola dönüşte mal oluyor
