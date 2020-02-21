@@ -1,6 +1,6 @@
 
 int SENSOR_LIMIT = 0; 
-
+double c =0;
 //////////////////////////// 
 // Motor Surucu Pinleri
 ///////////////////////////
@@ -12,8 +12,8 @@ int SENSOR_LIMIT = 0;
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 100
-#define MIDSPEED 100
+#define LOWSPEED 60
+#define MIDSPEED 60
 #define MAXSPEED 255
 #define DELAY 500
 
@@ -100,6 +100,11 @@ void setup(){
 
 void loop(){
 
+  
+ 
+  
+  
+  
   digitalWrite(STBY,HIGH);
   butonDurumu= digitalRead(button_pin);
  
@@ -155,6 +160,7 @@ void loop(){
     while(analogRead(lineM_2_pin)<SENSOR_LIMIT){
 
       left(LOWSPEED,k);
+      k += 0.3;
     }
     
     
@@ -166,6 +172,7 @@ void loop(){
     while(analogRead(lineM_1_pin)<SENSOR_LIMIT){
        
       right(LOWSPEED,k);
+      k += 0.3;
     }
    
 
@@ -366,7 +373,6 @@ void left(int speedValue,double k){
 
   int speedL = speedValue/k;
   int speedR = speedValue;
-  Serial.println(speedR);
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
@@ -383,8 +389,6 @@ void right(int speedValue, double k){
 
   int speedR = speedValue/k;
   int speedL = speedValue;
-
-  Serial.println(speedL);
   
   digitalWrite(AIN1,HIGH);
   digitalWrite(AIN2,LOW);
