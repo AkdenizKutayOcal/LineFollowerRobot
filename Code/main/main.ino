@@ -13,7 +13,7 @@ int SENSOR_LIMIT = 0;
 #define PWMB 9
 #define STBY 6
 #define LOWSPEED 100
-#define MIDSPEED 70
+#define MIDSPEED 100
 #define MAXSPEED 255
 #define DELAY 500
 
@@ -152,14 +152,22 @@ void loop(){
   else if(k>1){     
     Serial.println("sag");
     k = abs(k);
-    left(LOWSPEED,k);
+    while(analogRead(lineM_2_pin)<SENSOR_LIMIT){
+
+      left(LOWSPEED,k);
+    }
+    
     
   }
 
   else if(k<-1){
     Serial.println("sol");
     k = abs(k);
-    right(LOWSPEED,k);
+    while(analogRead(lineM_1_pin)<SENSOR_LIMIT){
+       
+      right(LOWSPEED,k);
+    }
+   
 
   }
   
@@ -282,7 +290,7 @@ double findK(int sensorValues[]){
 
     else{
 
-      if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){
+      if(sensorValues[0]>SENSOR_LIMIT && sensorValues[7]<SENSOR_LIMIT){  //instead of sending -3.5 or 3.5 send special 90 degree turn values 
 
         k = -3.5;
         
