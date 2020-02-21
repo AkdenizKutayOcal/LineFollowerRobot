@@ -14,8 +14,8 @@ int stage = 1;
 #define PWMA 3 
 #define PWMB 9
 #define STBY 6
-#define LOWSPEED 60
-#define MIDSPEED 60
+#define LOWSPEED 70
+#define MIDSPEED 70
 #define MAXSPEED 205
 #define DELAY 500
 
@@ -179,9 +179,11 @@ void lineFollow(){
   else if(k>1){     
     Serial.println("sag");
     k = abs(k);
-    while(analogRead(lineM_2_pin)<SENSOR_LIMIT){
+    int i=0;
+    while(analogRead(lineM_2_pin)<SENSOR_LIMIT&&analogRead(lineM_1_pin)<SENSOR_LIMIT){
 
       left(LOWSPEED,k);
+      if(k<5)
       k += 0.3;
     }
     
@@ -191,11 +193,13 @@ void lineFollow(){
   else if(k<-1){
     Serial.println("sol");
     k = abs(k);
-    while(analogRead(lineM_1_pin)<SENSOR_LIMIT){
+    int i=0;
+    while(analogRead(lineM_2_pin)<SENSOR_LIMIT&&analogRead(lineM_1_pin)<SENSOR_LIMIT){
        
       right(LOWSPEED,k);
+      if(k<5)
       k += 0.3;
-    }
+}
   }
   /* else if(k==0.2){
      Serial.println("saga keskin");
@@ -235,7 +239,7 @@ void readSensors(int sensorValues[]){
 
   cisim = digitalRead(cisim_pin);
 
-  
+  /*
   Serial.print("Line Sensor Values: ");
   Serial.print(sensorValues[0]);
   Serial.print(' ');
@@ -256,7 +260,7 @@ void readSensors(int sensorValues[]){
  
   Serial.print("Cisim Sensoru ");
   Serial.println(cisim);
-
+*/
 }
 
 double findK(int sensorValues[]){
