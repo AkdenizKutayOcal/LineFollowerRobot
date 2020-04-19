@@ -279,12 +279,8 @@ void lineFollow(){
     
     Serial.println("dur");
     brake();
-  }
-
-
-  
+  } 
 }
-
 
 void readSensors(int sensorValues[]){
 
@@ -509,10 +505,6 @@ void seritDegistirSol(){
     analogWrite(PWMB, 50);
     
   }
-
-  
-
-  
 }
 
 void seritDegistirSag(){
@@ -572,5 +564,3 @@ void l90(){
   }while(!(analogRead(lineL_1_pin)<SENSOR_LIMIT) && (analogRead(lineL_2_pin)<SENSOR_LIMIT) && ((analogRead(lineM_1_pin)>SENSOR_LIMIT) || (analogRead(lineM_2_pin)>SENSOR_LIMIT)));
 
 }
-//Stage 2 ye girerken keskin sola dönüşte mal oluyor
-//Stage3 ten 4 e giris sırasında serit değiştirme methodu lazım
